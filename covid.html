@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="corona.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"> </script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"> </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js">  </script>
+    <title>COVID -19 WEB TRACKER</title>
+  </head>
+
+  <body onload="init()"style="background-color:black;">
+    <div class="row">
+    <div class="col-sm-8"> <img src="corona4.jpg" alt=""></div>
+    <div class="col-sm-4"> <img src="corona6.jpg" alt=""></div>
+    </div>
+    <div style="background-color:black;"class="col-sm-12">
+       <table class="table table-hover">
+         <thead style="font-size:25px;">
+          <th></th>
+          <th style="color: #224BF1;">TOTAL CASES</th>
+          <th style="color:#FFDA09 ;">NEW CONFIRMED</th>
+          <th  style="color:#FF1008;">TOTAL DEATHS</th>
+          <th style="color:#63EB0B;">TOTAL RECOVERED</th>
+
+        </thead>
+          <tbody style="font-size:55px;color:white;">
+            <tr id="adata">
+
+            </tr>
+   </tbody>
+        </table>
+      </div>
+
+</div>
+     <canvas id="myChart" ></canvas>
+
+     <h1 style="text-align:center;color:blue;">COUNTRY WISE LIVE UPDATES</h1>
+     <div class="main">
+                  <input type="text" id="minp" value=""placeholder="Search"onkeyup="search()">
+                <div class="btn">
+                  <a href="#"><i class="fa fa-search"></i></a>
+                </div>
+            </div>
+       <br><br>
+        <table class="table table-bordered"id="bval"style="color:white;background-color:black">
+        <thead>
+          <th style="color:#ED6203 ;background-color:black;">COUNTRY</th>
+          <th style="color:#224BF1;background-color:black;">TOTAL CONFIRMED</th>
+          <th style="color:#FFDA09;background-color:black;">NEW CONFIRMED</th>
+          <th  style="color:red;background-color:black;">TOTAL DEATHS</th>
+          <th style="color:#63EB0B;background-color:black;">TOTAL RECOVERED</th>
+        </thead>
+            </table>
+
+        <script>
+        // init()
+           var adata='';
+           var data='';
+          function  init()
+          {
+            var url="https://api.covid19api.com/summary"
+              $.get(url,function(data){
+
+              var  bval=document.getElementById('bval');
+              var Countries = []
+              var TotalConfirmed = []
+              var TotalRecovered = []
+              var TotalDeaths = []
+
+
+           $.each(data.Countries,function(id,obj) {
+             Countries.push(obj.Country)
+             TotalConfirmed.push(obj.TotalConfirmed)
+             TotalRecovered.push(obj.TotalRecovered)
+             TotalDeaths.push(obj.TotalDeaths)
+
+           })
+          console.log(TotalConfirmed);
+           var myChart=document.getElementById("myChart").getContext('2d');
+           var chart=  new Chart(myChart,{
+                type:'line',
+                data:{
+                     labels:Countries,
+                     datasets:[
+                       {
+                         label:'TotalConfirmed',
+                         data :TotalConfirmed,
+                         backgroundColor:'#224BF1',
+                         minBarLength:100
+                       },
+                       {
+                         label:'TotalRecovered',
+                         data :TotalRecovered,
+                         backgroundColor:'#63EB0B',
+                         minBarLength:100
+                       },
+                       {
+                         label:'TotalDeaths',
+                         data :TotalDeaths,
+                         backgroundColor:'#FF1008',
+                         minBarLength:100
+                          }
+                     ]
+                   },
+                   options:{}
+
+             })
+            for (var i=1;i<= data.Countries.length;i++)
+                   {
+                       var x=bval.insertRow(i);
+                       x.insertCell(0);
+                       var coun=data.Countries[i-1].Country;
+                        bval.rows[i].cells[0].innerHTML= data.Countries[i-1].Country;
+
+                       x.insertCell(1);
+                        bval.rows[i].cells[1].innerHTML=data.Countries[i-1].TotalConfirmed;
+                        x.insertCell(2);
+                       bval.rows[i].cells[2].innerHTML=data.Countries[i-1].NewConfirmed;
+                       x.insertCell(3);
+                       bval.rows[i].cells[3].innerHTML=data.Countries[i-1].TotalDeaths;
+                       x.insertCell(4);
+                      bval.rows[i].cells[4].innerHTML=data.Countries[i-1].TotalRecovered;
+                  }
+            data = `
+            <td></td>
+          <td>${data.Global.TotalConfirmed}</td>
+          <td>${data.Global.NewConfirmed}</td>
+              <td>${data.Global.TotalDeaths}</td>
+                <td>${data.Global.TotalRecovered}</td><br>
+              `
+            $('#adata').html(data);
+        })
+
+          }
+          function search()
+           {
+               let filter = document.getElementById('minp').value.toUpperCase();
+               let bval=document.getElementById('bval');
+               let tr = bval.getElementsByTagName('tr');
+               for (var i = 1; i<=tr.length; i++) {
+                 let td =tr[i].getElementsByTagName('td')[0];
+                 if (td) {
+                   let textvalue = td.textContent||td.innerHTML;
+                   if(td.textContent.toUpperCase().indexOf(filter)>-1){
+                       tr[i].style.display="";
+                      }
+                      else
+                       {
+                           tr[i].style.display="none";
+                      }
+                  }
+                 }
+
+               }
+</script>
+
+</body>
+</html>
